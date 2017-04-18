@@ -18,6 +18,5 @@ Use:
 The model is measured with a slight "nose down" angle. This is intentional and is not adjustable, but it is possible to change by modifying the front or the rear support height. If properly built, the scale is as accurate as you can place the model on it. Try to relocate the model a few times to verify that the measured CG value is repeatable.
 
 To do:
-Electronics
-BOM
+Electronics, BOM
   
