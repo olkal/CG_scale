@@ -26,9 +26,9 @@ long weightSng[3];
 long weightTot;
 float CGratio;
 long CG;
-long WingPegDist = 1198; //calibration value in 1/10mm, projected distance between wing support points, measure with calliper
-long LEstopperDist = 300; //calibration value 1/10mm, projected distance from front wing support point to leading edge (stopper pin), measure with calliper
-long CGoffset = ((WingPegDist / 2) + LEstopperDist) * 10;;
+const long WingPegDist = 1198; //calibration value in 1/10mm, projected distance between wing support points, measure with calliper
+const long LEstopperDist = 300; //calibration value 1/10mm, projected distance from front wing support point to leading edge (stopper pin), measure with calliper
+const long CGoffset = ((WingPegDist / 2) + LEstopperDist) * 10;;
 char toLCD[20];
 boolean output;
 long t;
