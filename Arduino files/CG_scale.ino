@@ -1,134 +1,173 @@
 /*
- * CG scale for F3F & F3B models
- * Olav Kallhovd 2016
- * 
+   CG scale for F3F & F3B models
+   Olav Kallhovd 2016-2017
+
    CG Scale main components:
    1 pc load sensor front YZC-133 2kg
    1 pc load sensor rear YZC-133 3kg
    2 pc HX711 ADC, one for each load sensor (128bit resolution)
-   1 pc Arduino Pro
-   1 pc Serial display (16*2 LCD w/ Arduino Pro)
+   1 pc Arduino Pro for the scale
+   1 pc Arduino Pro for the Serial display
+   1 pc 16*2 HD44780 LCD for the Serial display
+   3D printed parts
 
-   Max model weight with suggested sensors: 4 to 4,5kg depending on CG location
+   Max model weight with sensors above: 4 to 4,5kg depending on CG location
+
 */
 
-#include "HX711.h" //https://github.com/bogde/HX711
+#include <HX711_ADC.h> //https://github.com/olkal/HX711_ADC can be installed from the library manager
+//Number of samples and some filtering settings can be adjusted in the HX711_ADC.h library file
+//The best RATE setting is usually 10SPS, see HX711 data sheet (HX711 pin 15, can usually be set by a solder jumper on the HX711 module)
+//RATE 80SPS will also work fine, but conversions will be more noisy, so consider increasing number of samples in HX711_ADC.h
 
-HX711 scale_1(A2, A3);//HX711 pins front sensor (DOUT, PD_SCK)
-HX711 scale_2(A0, A1);//HX711 pins rear sensor (DOUT, PD_SCK)
+//HX711 constructor (dout pin, sck pint):
+HX711_ADC LoadCell_1(A2, A3); //HX711 pins front sensor (DOUT, PD_SCK)
+HX711_ADC LoadCell_2(A0, A1); //HX711 pins front sensor (DOUT, PD_SCK)
 
 byte ledPin = 3;
 byte batRefPin = A4;
-
-long battValue;
-long weightAvr[3];
-long weightSng[3];
-long weightTot;
-float CGratio;
-long CG;
-const long WingPegDist = 1198; //calibration value in 1/10mm, projected distance between wing support points, measure with calliper
-const long LEstopperDist = 300; //calibration value 1/10mm, projected distance from front wing support point to leading edge (stopper pin), measure with calliper
-const long CGoffset = ((WingPegDist / 2) + LEstopperDist) * 10;;
 char toLCD[20];
 boolean output;
-long t;
+boolean ledState;
+long t1;
+long t2;
+
+const int printInterval = 500; // LCD/Serial refresh interval
+
+//*** configuration:
+//*** set dimensional calibration values:
+const long WingPegDist = 1198; //calibration value in 1/10mm, projected distance between wing support points, measure with calliper
+const long LEstopperDist = 300; //calibration value 1/10mm, projected distance from front wing support point to leading edge (stopper pin), measure with calliper
+//*** set scale calibration values (best to have the battery connected when doing calibration):
+const float ldcell_1_calfactor = 954.0; // user set calibration factor load cell front (float)
+const float ldcell_2_calfactor = 799.0; // user set calibration factor load cell rear (float)
+//***
+const long stabilisingtime = 3000; // tare precision can be improved by adding a few seconds of stabilising time
+//***
+const long CGoffset = ((WingPegDist / 2) + LEstopperDist) * 10;
 
 void setup() {
+  //***
+  output = 0; //change to 1 for LCD, output = 0 for Serial terminal (for calibrating), output = 1 for LCD !!!
+  //***
+  
   Serial.begin(9600);
-  delay(1000); //stabilize
-  int sens_cal_1 = 954;// this value is obtained by calibrating the front sensor with known weights
-  int sens_cal_2 = 799; // this value is obtained by calibrating the rear sensor with known weights
-  scale_1.set_scale(sens_cal_1); 
-  scale_2.tare(30); // reset the scale to 0
-  scale_2.set_scale(sens_cal_2);
-  scale_1.tare(30); // reset the scale to 0 
-
-  pinMode(ledPin, OUTPUT); //led
-  digitalWrite(ledPin, HIGH);
-
-  output = 1; // 0:Serial terminal (for calibrating), 1:LCD
-  int batval = readBattVoltage();
   Serial.write(254);
   Serial.write(128);
   Serial.print("F3X COG scale   ;");
   Serial.write(254);
   Serial.write(192);
   Serial.print("Bat:");
+  int batval = readBattVoltage();
   Serial.write((char)(batval / 1000) + 48);
   Serial.print(".");
   Serial.write((char)((batval % 1000) / 100) + 48);
   Serial.write((char)((batval % 100) / 10) + 48);
   Serial.print("V     ");
-  delay(3000);
-  Serial.write(254);
-  Serial.write(127); // clear lcd
+  if (output == 0) { //if output to serial terminal
+    Serial.println();
+    Serial.println("Wait for stabilising and tare...");
+  }
 
+  LoadCell_1.begin();
+  LoadCell_2.begin();
+  byte loadcell_1_rdy = 0;
+  byte loadcell_2_rdy = 0;
+  while ((loadcell_1_rdy + loadcell_2_rdy) < 2) { //run startup, stabilisation and tare, both modules simultaneously
+    if (!loadcell_1_rdy) loadcell_1_rdy = LoadCell_1.startMultiple(stabilisingtime);
+    if (!loadcell_2_rdy) loadcell_2_rdy = LoadCell_2.startMultiple(stabilisingtime);
+  }
+  LoadCell_1.setCalFactor(ldcell_1_calfactor); // set calibration factor
+  LoadCell_2.setCalFactor(ldcell_2_calfactor); // set calibration factor
+
+  pinMode(ledPin, OUTPUT); //led
+  digitalWrite(ledPin, HIGH);
+
+  if (output == 1) { //if output to LCD
+    Serial.write(254);
+    Serial.write(127); // clear lcd
+  }
 }
+
 int readBattVoltage() { // read battery voltage
-  long newbattvalue = 0;
-  for (byte a = 0; a < 5; a++) {
-    newbattvalue += analogRead(batRefPin);
+  long battvalue = 0;
+  battvalue += analogRead(batRefPin);
+  battvalue += analogRead(batRefPin);
+  battvalue *= 4883L; // analog reading * (5.00V*1000000)/1024 (adjust value if VCC is not 5.0V)
+  battvalue /= 640L; // this number comes from the resistor divider value ((R2/(R1+R2))*1000)/noof analogreadings (adjust value if required)
+  //Serial.println(battvalue);
+  if (battvalue < 7500) { //
+    //low bat warning code goes here, not implemented
   }
-  newbattvalue /= 5;
-  newbattvalue *= 502L; // vout=(reading * (5.00V*10000)/1023 (calculated this way in order to avoid use of floats) calibrate if required
-  newbattvalue /= 32;
-  //Serial.println(newbattvalue);
-  if ((newbattvalue < 7500) && (battValue < 7500)) { //
-    //low bat warning, not implemented
+  return battvalue;
+}
+
+void flashLED() {
+  if (t2 < millis()) {
+    if (ledState) {
+      t2 = millis() + 2000;
+      ledState = 0;
+    }
+    else {
+      t2 = millis() + 100;
+      ledState = 1;
+    }
+    digitalWrite(ledPin, ledState);
   }
-  battValue = newbattvalue;
-  return battValue;
 }
 
 void loop() {
-  if (t < millis()) {
-    t = millis() + 1000;
-    //read sensors:
-    scale_1.power_up();
-    scale_2.power_up();
-    float a = scale_1.get_units(20);
+  //library function update() should be called at least as often as HX711 sample rate; >10Hz@10SPS, >80Hz@80SPS
+  //longer delay in scetch will reduce effective sample rate (be careful with delay() in loop)
+  LoadCell_1.update();
+  LoadCell_2.update();
+
+  // calculate CG and update serial/LCD
+  if (t1 < millis()) {
+    t1 = millis() + printInterval;
+    float a = LoadCell_1.getData();
+    float b = LoadCell_2.getData();
+    long weightAvr[3];
+    float CGratio;
+    long CG;
     weightAvr[0] = a * 100;
-    float b = (scale_2.get_units(20));
     weightAvr[1] = b * 100;
-    weightTot = weightAvr[0] + weightAvr[1];
-    scale_1.power_down(); // put the ADC in sleep mode
-    scale_2.power_down(); // put the ADC in sleep mode
+    long weightTot = weightAvr[0] + weightAvr[1];
 
     if (weightAvr[0] > 500 && weightAvr[1] > 500) {
       long a = weightAvr[1] / 10;
       long b = weightAvr[0] / 10;
-      CGratio = (((a * 10000) / (a + b))); //*1246);// - ((WingPegDist/2))); //+356
-      float _CG = ((((WingPegDist) * CGratio) / 1000) - ((WingPegDist * 10) / 2) + CGoffset);
-      CG = _CG;
+      CGratio = (((a * 10000) / (a + b))); 
+      CG = ((((WingPegDist) * CGratio) / 1000) - ((WingPegDist * 10) / 2) + CGoffset);
     }
     else {
       CG = 0;
     }
-
-    if (!output) { //serial
+    // if output = 0: print result to serial terminal:
+    if (output == 0) {
       for (byte a = 0; a < 2; a++) {
-        Serial.print("\t| average_");
+        Serial.print("weight_LdCell_");
         Serial.print(a + 1);
-        Serial.print(":\t");
-        if(weightAvr[a] < 0) {
+        Serial.print(": ");
+        long i = weightAvr[a];
+        if (i < 0) {
           Serial.print('-');
-          weightAvr[a] = ~weightAvr[a];
+          i = ~weightAvr[a];
         }
-        Serial.print(weightAvr[a] / 100);
+        Serial.print(i / 100);
         Serial.print('.');
-        if((weightAvr[a] % 100) < 10) {
+        if ((i % 100) < 10) {
           Serial.print("0");
         }
-        Serial.println(weightAvr[a] % 100);
-        Serial.print("CGratio:");
-        Serial.print(CGratio);
-        Serial.print("  CG:");
-        Serial.print(CG / 100);
-        Serial.print(';');
-        Serial.println(CG % 100);
+        Serial.print(i % 100);
+        Serial.print("      ");
       }
+      Serial.print("CG:");
+      Serial.print(CG / 100);
+      Serial.print('.');
+      Serial.println(CG % 100);
     }
-    else { //serial to LCD
+    else { //if output = 1: print to serial LCD
       toLCD[0] = 254;
       toLCD[1] = 192;
       toLCD[2] = 'W';
@@ -170,9 +209,7 @@ void loop() {
         Serial.write(toLCD[i]);
       }
     }
-    digitalWrite(ledPin, HIGH);
-    delay(100);
-    digitalWrite(ledPin, LOW);
+    readBattVoltage();
   }
+  flashLED();
 }
-
