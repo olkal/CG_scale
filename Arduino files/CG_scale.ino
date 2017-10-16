@@ -22,7 +22,7 @@
 
 //HX711 constructor (dout pin, sck pint):
 HX711_ADC LoadCell_1(A2, A3); //HX711 pins front sensor (DOUT, PD_SCK)
-HX711_ADC LoadCell_2(A0, A1); //HX711 pins front sensor (DOUT, PD_SCK)
+HX711_ADC LoadCell_2(A0, A1); //HX711 pins rear sensor (DOUT, PD_SCK)
 
 byte ledPin = 3;
 byte batRefPin = A4;
