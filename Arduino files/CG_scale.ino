@@ -24,10 +24,19 @@
 HX711_ADC LoadCell_1(A2, A3); //HX711 pins front sensor (DOUT, PD_SCK)
 HX711_ADC LoadCell_2(A0, A1); //HX711 pins rear sensor (DOUT, PD_SCK)
 
+
+// I²C-Display, if available
+// Enable I²C-Display?
+// #define I2CDISP
+#ifdef I2CDISP
+#include <LiquidCrystal_I2C.h>
+LiquidCrystal_I2C lcd(0x3F,16,2);  // set the LCD address to 0x3F or 0x27 for a 16 chars and 2 line display
+#endif
+
 byte ledPin = 3;
 byte batRefPin = A4;
 char toLCD[20];
-boolean output;
+byte output;
 boolean ledState;
 long t1;
 long t2;
@@ -48,7 +57,10 @@ const long CGoffset = ((WingPegDist / 2) + LEstopperDist) * 10;
 
 void setup() {
   //***
-  output = 0; //change to 1 for LCD, output = 0 for Serial terminal (for calibrating), output = 1 for LCD !!!
+  // 0: Serial-Console (Your PC); 
+  // 1: Serial-LCD (2nd Arduino with SimpleSerialDisplay)
+  // 2: I2C-LCD (define I2CDISP above!)
+  output = 0;
   //***
   
   Serial.begin(9600);
@@ -68,6 +80,19 @@ void setup() {
     Serial.println();
     Serial.println("Wait for stabilising and tare...");
   }
+#ifdef I2CDISP
+  if (output != 0)
+    Serial.println("You have I2CDISP defined, but output is not 2. Are you sure thats right?");
+
+  Serial.println("Initializing I2C-Display");
+  lcd.init();
+  lcd.backlight();
+  lcd.setCursor(0, 0);
+  lcd.print("F3X COG scale,");
+  lcd.setCursor(0, 1);
+  lcd.print("at your service!");
+#endif
+
 
   LoadCell_1.begin();
   LoadCell_2.begin();
@@ -166,8 +191,7 @@ void loop() {
       Serial.print(CG / 100);
       Serial.print('.');
       Serial.println(CG % 100);
-    }
-    else { //if output = 1: print to serial LCD
+    } else if (output == 1) { //if output = 1: print to serial LCD
       toLCD[0] = 254;
       toLCD[1] = 192;
       toLCD[2] = 'W';
@@ -208,6 +232,28 @@ void loop() {
       for (byte i = 0; i < sizeof(toLCD) - 1; i++) {
         Serial.write(toLCD[i]);
       }
+    } else if (output == 2) { //if output = 2: print to I2C LCD
+      #ifdef I2CDISP
+      lcd.clear();
+      // 1st Line: Weight
+      lcd.setCursor(0, 0);
+      if (weightTot < 0 && weightTot >= - 100)
+        weightTot = 0;
+      if (weightTot < -100)
+        lcd.print("Wt: Error!");
+      else {
+        sprintf(toLCD, "Wt: %ug", weightTot/100);
+        lcd.print(toLCD);
+      }
+      // 2nd Line: CG
+      lcd.setCursor(0, 1);
+      if (CG == 0)
+        lcd.print("CG: Error!");
+      else {
+        sprintf(toLCD, "CG: %ld.%ldmm", CG/100, CG%100);
+        lcd.print(toLCD);
+      }
+      #endif
     }
     readBattVoltage();
   }
