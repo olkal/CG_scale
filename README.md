@@ -5,6 +5,9 @@ The scale can be used for most modern F3F/F3B gliders with slim fuselages and wi
 
 ![CG_scale](https://github.com/olkal/CG_scale/blob/master/Documentation/small_picture.png?raw=true)
 
+Update 13.10.2021:
+Updated Assembly instructions added, contributed by Christian Taylor Hauschild, thanks!
+
 Update 14.10.2020:
 Added `CG_scale_rear_support_big-version.stl` and `CG_scale_front_support_big-version.stl` for planes like [Respect Electro](https://respectf3f.weebly.com/electro-version.html)
 
