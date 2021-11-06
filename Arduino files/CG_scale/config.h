@@ -7,7 +7,7 @@
 
 
 //** Uncomment one of the two lines below to enable either serial 16x2 character display or i2c 16x2 character display:
-//#define USE_SERDISP
+#define USE_SERDISP
 #define USE_I2CDISP
 
 //** If using i2c display, set correct i2c address (if you don't know, use the i2c Scanner sketch: https://playground.arduino.cc/Main/I2cScanner/):
@@ -17,13 +17,13 @@
 #define USE_EEPROM
 
 //** Uncomment if you want to connect an optional push button button to manually set zero offset
-//#define USE_ZERO_BUTTON
+#define USE_ZERO_BUTTON
 
 //** Uncomment  if you want to connect an optional blinking LED for indicating power on (it's not very useful...)
-//#define USE_LED
+#define USE_LED
 
 //** Set low battery voltage in units mV, battery voltage shown on the LCD will blink if voltage is below this value
-const int lowBatVal = 6000;
+const int lowBatVal = 4000;
 
 //** Set the dimensional calibration values (see instruction sheet) in unit 1/10mm, measure using a calliper:
 const long WingPegDist = 1198; //projected distance between wing support points
@@ -68,3 +68,13 @@ const byte led_pin = 3;                 //optional power-on blinking LED
 //const byte batRef_pin = A0;           //Battery voltage sense via resistor divider, range 0-1v
 //const byte led_pin = ;                //optional power on blink LED
 //const byte zero_button_pin = ;        //optional zero offset push button
+
+//** you may define i2c LCD custom pins for non-standard LCD backpack circuit(optional), see main sketch:
+#define BACKLIGHT_PIN  7
+#define En_pin  4
+#define Rw_pin  5
+#define Rs_pin  6
+#define D4_pin  0
+#define D5_pin  1
+#define D6_pin  2
+#define D7_pin  3

@@ -36,21 +36,11 @@ HX711_ADC LoadCell_2(LoadCell_2_DOUT_pin, LoadCell_2_SCK_pin);
 #include <Wire.h>
 #include <LiquidCrystal_I2C.h> //can be installed from the library manager
 
-//** you may define i2c LCD custom pins for non-standard LCD backpack circuit(optional):
-#define BACKLIGHT_PIN  7
-#define En_pin  4
-#define Rw_pin  5
-#define Rs_pin  6
-#define D4_pin  0
-#define D5_pin  1
-#define D6_pin  2
-#define D7_pin  3
-
 //** declare custom pin i2c lcd object (optional):
-LiquidCrystal_I2C  lcdI2C(I2CDISP_ADR, En_pin, Rw_pin, Rs_pin, D4_pin, D5_pin, D6_pin, D7_pin);
+//LiquidCrystal_I2C  lcdI2C(I2CDISP_ADR, En_pin, Rw_pin, Rs_pin, D4_pin, D5_pin, D6_pin, D7_pin);
 
 //** declare standard pin i2c lcd object:
-//LiquidCrystal_I2C lcdI2C(I2CDISP_ADR, 16, 2);
+LiquidCrystal_I2C lcdI2C(I2CDISP_ADR, 16, 2);
 #endif
 
 byte seroutput = 0; //0: Serial LCD display, 1: Wt+CG+loadcell value, 2: other (calibration etc.)
@@ -660,3 +650,4 @@ void flashLED() {
   }
 #endif
 }
+
