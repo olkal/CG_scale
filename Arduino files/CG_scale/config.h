@@ -4,10 +4,13 @@
 //** The best RATE setting is usually "LOW" 10SPS, see HX711 data sheet (RATE is selected by HX711 pin 15, this can be set by a solder jumper on some HX711 modules)
 //** RATE "HIGH" 80SPS will also work, but conversions will be more noisy, so consider increasing number of samples in HX711_ADC.h
 
+//** If you are setting up a new scale, please consider first testing the indivdual loadcells using the example file provided with the HX711 library, "Read_1x_load_cell.ino",
+//** to ensure that direction of up/down force is working as it should. If not correct the loadcell wiring.
+
 
 
 //** Uncomment one of the two lines below to enable either serial 16x2 character display or i2c 16x2 character display:
-#define USE_SERDISP
+//#define USE_SERDISP
 #define USE_I2CDISP
 
 //** If using i2c display, set correct i2c address (if you don't know, use the i2c Scanner sketch: https://playground.arduino.cc/Main/I2cScanner/):
@@ -17,16 +20,16 @@
 #define USE_EEPROM
 
 //** Uncomment if you want to connect an optional push button button to manually set zero offset
-#define USE_ZERO_BUTTON
+//#define USE_ZERO_BUTTON
 
 //** Uncomment  if you want to connect an optional blinking LED for indicating power on (it's not very useful...)
-#define USE_LED
+//#define USE_LED
 
 //** Set low battery voltage in units mV, battery voltage shown on the LCD will blink if voltage is below this value
-const int lowBatVal = 4000;
+const int lowBatVal = 6000;
 
 //** Set the dimensional calibration values (see instruction sheet) in unit 1/10mm, measure using a calliper:
-const long WingPegDist = 1198; //projected distance between wing support points
+const long WingPegDist = 1200; //projected distance between wing support points
 const long LEstopperDist = 300; //projected distance from front wing support point to leading edge (stopper pin)
 
 //** Set loadcell calibration values (best to have the battery connected when doing calibration).
@@ -69,7 +72,10 @@ const byte led_pin = 3;                 //optional power-on blinking LED
 //const byte led_pin = ;                //optional power on blink LED
 //const byte zero_button_pin = ;        //optional zero offset push button
 
-//** you may define i2c LCD custom pins for non-standard LCD backpack circuit(optional), see main sketch:
+//** you may define i2c LCD custom pins for non-standard LCD backpack circuit (optional). 
+//** Uncomment if you want to define custom pins, and then define pins as you wish:
+//#define USE_CUSTOM_I2C_PINS
+//** LCD backpack internal pin mapping:
 #define BACKLIGHT_PIN  7
 #define En_pin  4
 #define Rw_pin  5

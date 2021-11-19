@@ -2,6 +2,7 @@
    CG scale for F3F & F3B models
    Olav Kallhovd, 2016-2021
 */
+#define VERSION "CG Scale SW v1.2.0b"
 
 #include "config.h"
 #if defined USE_EEPROM
@@ -36,11 +37,14 @@ HX711_ADC LoadCell_2(LoadCell_2_DOUT_pin, LoadCell_2_SCK_pin);
 #include <Wire.h>
 #include <LiquidCrystal_I2C.h> //can be installed from the library manager
 
-//** declare custom pin i2c lcd object (optional):
-//LiquidCrystal_I2C  lcdI2C(I2CDISP_ADR, En_pin, Rw_pin, Rs_pin, D4_pin, D5_pin, D6_pin, D7_pin);
-
+//** declare i2c lcd object:
+#ifdef USE_CUSTOM_I2C_PINS
+//** declare custom pin i2c lcd object:
+LiquidCrystal_I2C  lcdI2C(I2CDISP_ADR, En_pin, Rw_pin, Rs_pin, D4_pin, D5_pin, D6_pin, D7_pin);
+#else
 //** declare standard pin i2c lcd object:
 LiquidCrystal_I2C lcdI2C(I2CDISP_ADR, 16, 2);
+#endif
 #endif
 
 byte seroutput = 0; //0: Serial LCD display, 1: Wt+CG+loadcell value, 2: other (calibration etc.)
@@ -113,7 +117,7 @@ void setupLoadcells() {
   if (EEPROM.read(ADR_LDCELL1_IS_CAL) == IS_CAL_VAL) {
     EEPROM.get(ADR_LDCELL1_CAL, ldcell_1_calfactor);
   }
-  if (EEPROM.read(ADR_LDCELL1_IS_CAL) == IS_CAL_VAL) {
+  if (EEPROM.read(ADR_LDCELL2_IS_CAL) == IS_CAL_VAL) {
     EEPROM.get(ADR_LDCELL2_CAL, ldcell_2_calfactor);
   }
   if (EEPROM.read(ADR_BATVOLT_IS_CAL) == IS_CAL_VAL) {
@@ -284,6 +288,7 @@ void printToLCD(char *lcdtext, byte lineno) {
 //*** print serial input menu:
 void printMenu() {
   Serial.println();
+  Serial.println(F(VERSION));
   Serial.println(F("Menu:"));
   Serial.println(F("Send 's' to enable weight/CG output to Serial Monitor"));
   Serial.println(F("Send 'z' to set zero offset"));
