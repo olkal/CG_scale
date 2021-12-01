@@ -2,7 +2,7 @@
    CG scale for F3F & F3B models
    Olav Kallhovd, 2016-2021
 */
-#define VERSION "CG Scale SW v1.2.0b"
+#define VERSION "CG Scale SW v1.2.0"
 
 #include "config.h"
 #if defined USE_EEPROM
