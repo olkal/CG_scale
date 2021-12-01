@@ -5,7 +5,7 @@ The scale can be used for most modern F3F/F3B gliders with slim fuselages and wi
 
 ![CG_scale](https://github.com/olkal/CG_scale/blob/master/Documentation/small_picture.png?raw=true)
 
-Update 19.11.2021, Arduino code re-write:
+Update 01.12.2021, Arduino code re-write:
 - New function: Serial Monitor menu/input
 - New function: Calibration routine for loadcells
 - New function: Calibration routine for battery voltage
@@ -15,6 +15,7 @@ Update 19.11.2021, Arduino code re-write:
 - Display battery voltage also for I2C display
 - Optional Zero Offset button included
 - Low battery warning
+- Updated instructions, circuit diagram and BOM
 - ++
 
 Update 13.10.2021:
