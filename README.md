@@ -5,7 +5,7 @@ The scale can be used for most modern F3F/F3B gliders with slim fuselages and wi
 
 ![CG_scale](https://github.com/olkal/CG_scale/blob/master/Documentation/small_picture.png?raw=true)
 
-Update 05.02.2022 1.2.1, minor bug fix
+Update 05.02.2022 1.2.1, minor bug fix + optional larger LCD box bottom part
 
 Update 01.12.2021 1.2.0, Arduino code re-write:
 - New function: Serial Monitor menu/input
