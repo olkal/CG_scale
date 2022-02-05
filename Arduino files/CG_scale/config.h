@@ -55,10 +55,10 @@ float batvoltage_calfactor = 15.26;
 //** If you use an i2c display, pin A4 is SDA and pin A5 is SCL for the display communication
 //** If you use the Serial display, pin 1 for the display serial communication
 //** Note that on the Atmega328 pin A6 and A7 is for analog read only.
-const byte LoadCell_1_DOUT_pin = A0;    //HX711 DOUT pin for load cell front
-const byte LoadCell_1_SCK_pin = A1;     //HX711 SCK pin for load cell front
-const byte LoadCell_2_DOUT_pin = A2;    //HX711 DOUT pin for load cell rear
-const byte LoadCell_2_SCK_pin = A3;     //HX711 SCK pin for load cell rear
+const byte LoadCell_1_DOUT_pin = A2;    //HX711 DOUT pin for load cell front
+const byte LoadCell_1_SCK_pin = A3;     //HX711 SCK pin for load cell front
+const byte LoadCell_2_DOUT_pin = A0;    //HX711 DOUT pin for load cell rear
+const byte LoadCell_2_SCK_pin = A1;     //HX711 SCK pin for load cell rear
 const byte batRef_pin = A6;             //Battery voltage sense via resistor divider, range 0-5v (0-VCC)
 const byte zero_button_pin = 5;         //optional zero offset push button
 const byte led_pin = 3;                 //optional power-on blinking LED

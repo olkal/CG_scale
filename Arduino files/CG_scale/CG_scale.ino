@@ -294,7 +294,7 @@ void printMenu() {
   Serial.println(F("Send 'z' to set zero offset"));
   Serial.println(F("Send 'c1' to start FRONT load cell calibration"));
   Serial.println(F("Send 'c2' to start REAR load cell calibration"));
-  Serial.println(F("Send 'c3' to start battery voltage calibration"));
+  Serial.println(F("Send 'b' to start battery voltage calibration"));
   Serial.println(F("Send 'm1' to manually set FRONT load cell calibration value"));
   Serial.println(F("Send 'm2' to manually set REAR load cell calibration value"));
 }
