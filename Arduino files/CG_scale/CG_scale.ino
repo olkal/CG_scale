@@ -2,7 +2,7 @@
    CG scale for F3F & F3B models
    Olav Kallhovd, 2016-2021
 */
-#define VERSION "CG Scale SW v1.2.1"
+#define VERSION "CG Scale SW v1.2.2"
 
 #include "config.h"
 #if defined USE_EEPROM
@@ -24,7 +24,7 @@
 #define IS_CAL_VAL          254
 
 //** HX711 library:
-#include <HX711_ADC.h> //https://github.com/olkal/HX711_ADC can be installed from the library manager
+#include <HX711_ADC.h> //https://github.com/olkal/HX711_ADC library can be installed from the library manager
 
 //** HX711 constructors:
 HX711_ADC LoadCell_1(LoadCell_1_DOUT_pin, LoadCell_1_SCK_pin);
@@ -35,16 +35,9 @@ HX711_ADC LoadCell_2(LoadCell_2_DOUT_pin, LoadCell_2_SCK_pin);
 //** i2c LCD librarys and declaration:
 #ifdef USE_I2CDISP
 #include <Wire.h>
-#include <LiquidCrystal_I2C.h> //can be installed from the library manager
-
-//** declare i2c lcd object:
-#ifdef USE_CUSTOM_I2C_PINS
-//** declare custom pin i2c lcd object:
-LiquidCrystal_I2C  lcdI2C(I2CDISP_ADR, En_pin, Rw_pin, Rs_pin, D4_pin, D5_pin, D6_pin, D7_pin);
-#else
-//** declare standard pin i2c lcd object:
-LiquidCrystal_I2C lcdI2C(I2CDISP_ADR, 16, 2);
-#endif
+#include <hd44780.h> //https://github.com/duinoWitchery/hd44780 library can be installed from the library manager
+#include <hd44780ioClass/hd44780_I2Cexp.h> 
+hd44780_I2Cexp lcdI2C(I2CDISP_ADR,16,2); // declare lcd object 
 #endif
 
 byte seroutput = 0; //0: Serial LCD display, 1: Wt+CG+loadcell value, 2: other (calibration etc.)
@@ -655,4 +648,3 @@ void flashLED() {
   }
 #endif
 }
-

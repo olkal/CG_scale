@@ -13,8 +13,9 @@
 //#define USE_SERDISP
 #define USE_I2CDISP
 
-//** If using i2c display, set correct i2c address (if you don't know, use the i2c Scanner sketch: https://playground.arduino.cc/Main/I2cScanner/):
-#define I2CDISP_ADR 0x20
+//** If using i2c display, set correct i2c address (if you don't know, use the i2c Scanner sketch: https://playground.arduino.cc/Main/I2cScanner/)
+//** or you can even set the i2c address to 0x00 to let the hd44780 library auto locate the address
+#define I2CDISP_ADR 0x00
 
 //** Uncomment to enable optional EEPROM storing of loadcell calibration value (ldcell_1_calfactor and ldcell_2_calfactor):
 #define USE_EEPROM
@@ -71,16 +72,3 @@ const byte led_pin = 3;                 //optional power-on blinking LED
 //const byte batRef_pin = A0;           //Battery voltage sense via resistor divider, range 0-1v
 //const byte led_pin = ;                //optional power on blink LED
 //const byte zero_button_pin = ;        //optional zero offset push button
-
-//** you may define i2c LCD custom pins for non-standard LCD backpack circuit (optional). 
-//** Uncomment if you want to define custom pins, and then define pins as you wish:
-//#define USE_CUSTOM_I2C_PINS
-//** LCD backpack internal pin mapping:
-#define BACKLIGHT_PIN  7
-#define En_pin  4
-#define Rw_pin  5
-#define Rs_pin  6
-#define D4_pin  0
-#define D5_pin  1
-#define D6_pin  2
-#define D7_pin  3
